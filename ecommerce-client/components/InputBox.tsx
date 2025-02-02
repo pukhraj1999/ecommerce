@@ -2,6 +2,9 @@ import { View, Text, TextInput, TextInputProps, TouchableOpacity } from 'react-n
 import React, { useState } from 'react'
 import { themeColor } from '@/themes'
 import Fontisto from '@expo/vector-icons/Fontisto';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { togglePasswordVisible } from '@/store/features/SettingsSlice';
 
 export type InputBoxProps = {
     className?: string,
@@ -14,7 +17,8 @@ export type InputBoxProps = {
 }
 
 export default function InputBox({ className, label, placeholder, type = "text", isErrorMsg, errorMsg, keyboardType }: InputBoxProps) {
-    const [isPasswordVisible, setPasswordVisibility] = useState<boolean>(false);
+    const dispatch = useDispatch();
+    const isPasswordVisible = useSelector((state: RootState) => state.settings.isPasswordVisible)
     return (
         <View className={className}>
             <Text className='text-2xl font-bold'>{label}</Text>
@@ -45,7 +49,7 @@ export default function InputBox({ className, label, placeholder, type = "text",
                         passwordRules={"required: lower; required: upper; required: digit; required: [-]; minlength: 8;"}
                         placeholderTextColor={themeColor.bgColor("0.5")}
                     ></TextInput>
-                    <TouchableOpacity onPress={() => { setPasswordVisibility(!isPasswordVisible) }}>
+                    <TouchableOpacity onPress={() => { dispatch(togglePasswordVisible()) }}>
                         {isPasswordVisible && <Fontisto name="eye" size={20} color="black" />}
                         {!isPasswordVisible && <Fontisto name="low-vision" size={30} color="black" />}
                     </TouchableOpacity>
