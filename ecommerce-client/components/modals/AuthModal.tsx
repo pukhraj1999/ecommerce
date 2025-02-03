@@ -1,16 +1,19 @@
 import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import React from 'react'
 import { themeColor } from '@/themes';
 import InputBox from '../InputBox';
-import { login, signup } from '@/dynamicForms/authForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { toggleSignup } from '@/store/features/SettingsSlice';
 import ButtonBox from '../ButtonBox';
+import { changeValue, getResult } from '@/store/features/FormsSlice';
 
 export default function AuthModal() {
     const dispatch = useDispatch();
     const isSignup = useSelector((state: RootState) => state.settings.isSignup);
+    const login = useSelector((state: RootState) => state.forms.login);
+    const signup = useSelector((state: RootState) => state.forms.signup);
+
     return (
         <View className='flex-1 mx-2 mb-4'>
             <ScrollView>
@@ -37,6 +40,12 @@ export default function AuthModal() {
                             type={item.type}
                             placeholder={item.placeholder}
                             keyboardType={item.keyboardType}
+                            isErrorMsg={item.isErrorMsg}
+                            errorMsg={item.errorMsg}
+                            value={item.value}
+                            onChangeText={(text) => {
+                                dispatch(changeValue({ form: "login", id: item.id!, value: text }));
+                            }}
                         />
                     })}
                     {isSignup && signup.map((item, index) => {
@@ -45,8 +54,12 @@ export default function AuthModal() {
                             className="my-2"
                             label={item.label}
                             type={item.type}
+                            value={item.value}
                             placeholder={item.placeholder}
                             keyboardType={item.keyboardType}
+                            onChangeText={(text) => {
+                                dispatch(changeValue({ form: "signup", id: item.id!, value: text }));
+                            }}
                         />
                     })}
                     <ButtonBox
@@ -54,7 +67,13 @@ export default function AuthModal() {
                         boxClassName='my-4'
                         textClassName='p-1'
                         title={isSignup ? "Sign Up" : "Log In"}
-                        onPress={() => { }}
+                        onPress={() => {
+                            if (isSignup) {
+                                dispatch(getResult({ form: "signup" }));
+                            } else {
+                                dispatch(getResult({ form: "login" }));
+                            }
+                        }}
                     />
                     <View className='my-2 flex-row justify-center items-center'>
                         <Text className='text-xl'> {isSignup ? "You already have an Account? " : "Don't have an Account?"}</Text>

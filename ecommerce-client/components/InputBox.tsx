@@ -1,22 +1,27 @@
 import { View, Text, TextInput, TextInputProps, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import React from 'react'
 import { themeColor } from '@/themes'
 import Fontisto from '@expo/vector-icons/Fontisto';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { togglePasswordVisible } from '@/store/features/SettingsSlice';
+import InputModel from '@/models/InputModel';
 
-export type InputBoxProps = {
-    className?: string,
-    label: string,
-    type?: "text" | "password",
-    placeholder: string,
-    isErrorMsg?: boolean,
-    errorMsg?: string,
-    keyboardType?: TextInputProps['keyboardType'],
-}
+export type InputBoxProps = InputModel & {
+    onChangeText?: (text: string) => void,
+};
 
-export default function InputBox({ className, label, placeholder, type = "text", isErrorMsg, errorMsg, keyboardType }: InputBoxProps) {
+export default function InputBox({
+    className,
+    id,
+    label,
+    placeholder,
+    type = "text",
+    value = "",
+    onChangeText,
+    isErrorMsg,
+    errorMsg,
+    keyboardType }: InputBoxProps) {
     const dispatch = useDispatch();
     const isPasswordVisible = useSelector((state: RootState) => state.settings.isPasswordVisible)
     return (
@@ -30,7 +35,8 @@ export default function InputBox({ className, label, placeholder, type = "text",
                 className='p-4 border-2 border-black rounded-xl text-3xl'
                 placeholder={placeholder}
                 keyboardType={keyboardType}
-
+                value={value}
+                onChangeText={onChangeText}
                 placeholderTextColor={themeColor.bgColor("0.5")}
             ></TextInput>}
             {type === "password" && (
@@ -46,6 +52,8 @@ export default function InputBox({ className, label, placeholder, type = "text",
                         placeholder={placeholder}
                         keyboardType={keyboardType}
                         secureTextEntry={!isPasswordVisible}
+                        onChangeText={onChangeText}
+                        value={value}
                         passwordRules={"required: lower; required: upper; required: digit; required: [-]; minlength: 8;"}
                         placeholderTextColor={themeColor.bgColor("0.5")}
                     ></TextInput>
@@ -55,7 +63,7 @@ export default function InputBox({ className, label, placeholder, type = "text",
                     </TouchableOpacity>
                 </View>
             )}
-
+            {isErrorMsg && <Text className='ml-4 text-xl text-red-500'>{errorMsg}</Text>}
         </View>
     )
 }
